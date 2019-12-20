@@ -1,2 +1,2 @@
-# Similarity search on prediction tiles using an auto encoder and HNSW search index
-# Follow instructions and code in search_full.ipynb to do everything from scratch or search_basic.ipynb to just perform a search
+### Similarity search on prediction tiles using an auto encoder and HNSW search index
+#### Follow instructions and code in search_full.ipynb to do everything from scratch or search_basic.ipynb to just perform a search
