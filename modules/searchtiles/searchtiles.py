@@ -909,7 +909,7 @@ def moments_cov(data):
     return cov
     
     
-def rotate_tile(im, tolerance = 1, contour_level = 100, cutoff_tolerance = 0.6, hough_threshold = 20, hough_rho = 1, hough_theta = 1 * np.pi / 180, padding_mode = 'constant', rotation_mode = 'nearest', verbose = False):
+def rotate_tile(im, tolerance = 1, contour_level = 100, cutoff_tolerance = 0.6, padding_mode = 'constant', rotation_mode = 'nearest', verbose = False):
     
     """
     Given a prediction raster tile, rotate it such that it is aligned to the nearest right angle using either hough transforms or raw image moments. Hough transforms are attempted first as they work better on square shapes like roofs, but if it fails then raw image moments are used, which work better on blobs such as pools. Images are rotated about their centroid, not just the centre of the image.
@@ -919,9 +919,6 @@ def rotate_tile(im, tolerance = 1, contour_level = 100, cutoff_tolerance = 0.6, 
     tolerance (int): Tolerance for the skimage function approximate_polygon(). "Maximum distance from original points of polygon to approximated polygonal chain. If tolerance is 0, the original coordinate array is returned."
     contour_level (int): Contour level for the skimage find_contours() function. "Value along which to find contours in the array"
     cutoff_tolerance (int): Tolerance from 0 to 1 of how much of the original image needs to remain after rotation for it to be allowed. A pool in the corner of the image may be completely lost after rotation, so we want to avoid that. 0.6 = 60% of the original image needs to remain to be allowed.
-    hough_threshold (int): Threshold for spoor.smoothing_utils.get_hough_transform_angle().
-    hough_rho (float): Rho for spoor.smoothing_utils.get_hough_transform_angle().
-    hough_theta (float): Theta for spoor.smoothing_utils.get_hough_transform_angle().
     padding_mode (string): Mode to use for np.pad() when performing a rotation around the centroid.
     rotation_mode (string): Mode to use for scipy.ndimage.rotate() when performing a rotation around the centroid.
     verbose (boolean): Whether or not to print additional information for debugging.
@@ -947,7 +944,7 @@ def rotate_tile(im, tolerance = 1, contour_level = 100, cutoff_tolerance = 0.6, 
         return im
     
     # First try to rotate the whole thing using a hough transform. If this fails, try the more blob-based raw image moments approach.
-    hough = get_hough_transform_angle(im, hough_threshold, hough_rho, hough_theta)
+    hough = get_hough_transform_angle(im, 0.1)
     if hough is not None:
         if verbose == True:
             print('Used hough with {} degrees'.format(-np.degrees(hough)))
@@ -1035,7 +1032,7 @@ def rotate_tile(im, tolerance = 1, contour_level = 100, cutoff_tolerance = 0.6, 
         return im_rotated_cropped    
 
 
-def rotate_model_tiles(base_path, tolerance = 10, contour_level = 100, cutoff_tolerance = 0.5, hough_threshold = 15, hough_rho = 1, hough_theta = 1 * np.pi / 180, verbose = True):
+def rotate_model_tiles(base_path, tolerance = 10, contour_level = 100, cutoff_tolerance = 0.5, verbose = True):
     
     """
     Rotate a set of images based on a file path, using the rotate_tile() function. All arguments except base_path are just passed on to the rotate_tile() function.
@@ -1046,9 +1043,6 @@ def rotate_model_tiles(base_path, tolerance = 10, contour_level = 100, cutoff_to
     tolerance (int): Tolerance for the skimage function approximate_polygon(). "Maximum distance from original points of polygon to approximated polygonal chain. If tolerance is 0, the original coordinate array is returned."
     contour_level (int): Contour level for the skimage find_contours() function. "Value along which to find contours in the array"
     cutoff_tolerance (int): Tolerance from 0 to 1 of how much of the original image needs to remain after rotation for it to be allowed. A pool in the corner of the image may be completely lost after rotation, so we want to avoid that. 0.6 = 60% of the original image needs to remain to be allowed.
-    hough_threshold (int): Threshold for spoor.smoothing_utils.get_hough_transform_angle().
-    hough_rho (float): Rho for spoor.smoothing_utils.get_hough_transform_angle().
-    hough_theta (float): Theta for spoor.smoothing_utils.get_hough_transform_angle().
     
     Returns:
     None. The images are saved in another directory, which is the base path with '_aligned' appended to it. 
@@ -1067,7 +1061,7 @@ def rotate_model_tiles(base_path, tolerance = 10, contour_level = 100, cutoff_to
         image_name = i.split('/')[-1]
         
         im = plt.imread(i)
-        im_rotated = rotate_tile(im, tolerance, contour_level, cutoff_tolerance, hough_threshold, hough_rho, hough_theta, verbose = False)
+        im_rotated = rotate_tile(im, tolerance, contour_level, cutoff_tolerance, verbose = False)
         
         im_rotated_pil = PIL.Image.fromarray(im_rotated, mode = "L")
         im_rotated_pil.save(base_path + '_aligned/train/class/' + image_name)
@@ -1077,13 +1071,13 @@ def rotate_model_tiles(base_path, tolerance = 10, contour_level = 100, cutoff_to
         image_name = i.split('/')[-1]
         
         im = plt.imread(i)
-        im_rotated = rotate_tile(im, tolerance, contour_level, cutoff_tolerance, hough_threshold, hough_rho, hough_theta, verbose = False)
+        im_rotated = rotate_tile(im, tolerance, contour_level, cutoff_tolerance, verbose = False)
         
         im_rotated_pil = PIL.Image.fromarray(im_rotated, mode = "L")
         im_rotated_pil.save(base_path + '_aligned/test/class/' + image_name)
 
 
-def rotate_search_tiles(base_path, categories, tolerance = 10, contour_level = 100, cutoff_tolerance = 0.5, hough_threshold = 15, hough_rho = 1, hough_theta = 1 * np.pi / 180, start = 0, verbose = True):    
+def rotate_search_tiles(base_path, categories, tolerance = 10, contour_level = 100, cutoff_tolerance = 0.5, start = 0, verbose = True):    
     
     """
     Rotate a set of images based on a file path, using the rotate_tile() function. All arguments except base_path are just passed on to the rotate_tile() function.
@@ -1095,9 +1089,6 @@ def rotate_search_tiles(base_path, categories, tolerance = 10, contour_level = 1
     tolerance (int): Tolerance for the skimage function approximate_polygon(). "Maximum distance from original points of polygon to approximated polygonal chain. If tolerance is 0, the original coordinate array is returned."
     contour_level (int): Contour level for the skimage find_contours() function. "Value along which to find contours in the array."
     cutoff_tolerance (int): Tolerance from 0 to 1 of how much of the original image needs to remain after rotation for it to be allowed. A pool in the corner of the image may be completely lost after rotation, so we want to avoid that. 0.6 = 60% of the original image needs to remain to be allowed.
-    hough_threshold (int): Threshold for spoor.smoothing_utils.get_hough_transform_angle().
-    hough_rho (float): Rho for spoor.smoothing_utils.get_hough_transform_angle().
-    hough_theta (float): Theta for spoor.smoothing_utils.get_hough_transform_angle().
     start (int): Optional starting index, so you can skip some elements if you wish
     verbose (boolean): Whether to print tqdm progress bars.
     
@@ -1121,7 +1112,7 @@ def rotate_search_tiles(base_path, categories, tolerance = 10, contour_level = 1
                 continue
 
             im = plt.imread(i)
-            im_rotated = rotate_tile(im, tolerance, contour_level, cutoff_tolerance, hough_threshold, hough_rho, hough_theta, verbose = False)
+            im_rotated = rotate_tile(im, tolerance, contour_level, cutoff_tolerance, verbose = False)
 
 
             im_rotated_pil = PIL.Image.fromarray(im_rotated, mode = "L")
