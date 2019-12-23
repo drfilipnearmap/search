@@ -20,3 +20,9 @@ jupyter lab --no-browser --port=5000 --ip=0.0.0.0
 ```
 
 5. Follow instructions and code in search_full.ipynb to do everything from scratch or search_basic.ipynb to just perform a search
+
+### Additional data
+
+Models and indexes are available on S3 as well as /mnt/data. On S3, models are in s3://similarity-search/models/ and indexes are in s3://similarity-search/indexes/. The same files are available in /mnt/data/data_filip/models and /mnt/data/data_filip/indexes/.
+
+Tiles and encoded predictions for the Sydney area are available in /mnt/data/data_filip/tiles_sydney/ and /mnt/data/data_filip/encoded_predictions/ respectively. 
