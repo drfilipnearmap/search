@@ -357,9 +357,9 @@ def batch_inference(save_path, base_path = '/mnt/DATA/data/apollo_20190509/', pa
     # The model which takes RGB images and produces prediction rasters - can be swapped out for other models which take the same image size.
     model = None
     if zoom_level == 19:
-        model = dilated_fcn_resnet_35((1024,1024), path_to_weights)
+        model = dilated_fcn_resnet((1024,1024), path_to_weights)
     else:
-        model = dilated_fcn_resnet_35((896,896), path_to_weights)
+        model = dilated_fcn_resnet((896,896), path_to_weights)
         
     batch_size = int(num_imgs/batches)
     training_num = 0
