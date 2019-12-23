@@ -330,7 +330,7 @@ def dilated_fcn_resnet(img_size, path_to_weights):
     tfk.Model with the weights in path_to_weights loaded in
     """
 
-    res50 = apollo.make_dilated_fcn_resnet_16s((img_size[0], img_size[1], 3), 34)
+    res50 = make_dilated_fcn_resnet_16s((img_size[0], img_size[1], 3), 34)
     res50.load_weights(path_to_weights)
     return tf.keras.Model(res50.input, res50.output)
 
