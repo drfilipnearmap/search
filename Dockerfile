@@ -14,6 +14,10 @@ RUN cd /spoor && \
 	python setup.py install && \
 	rm -rf /spoor
 
+RUN cd /apollo && \
+	python setup.py install && \
+	rm -rf /apollo
+
 RUN conda install --force-reinstall -y conda=4.7.12 && \
 	conda install -c conda-forge -c https://conda.anaconda.org/t/$ANACONDA_TOKEN/nearmap -y \
 	pyutils=1.2.3 \

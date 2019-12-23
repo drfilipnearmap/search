@@ -11,7 +11,7 @@ from pyimage_ops.pred_tiler.requester import PredictionRequester
 from skimage.draw import polygon
 from skimage.measure import find_contours, approximate_polygon
 from spoor.smoothing_utils import get_hough_transform_angle
-import apollo_model as apollo
+import apollo
 
 
 def fetch_tiles(lat, lon, zoom_level, datestr, box_size, file_path, categories = [-1], verbose = False):
@@ -318,8 +318,23 @@ def dataset_from_apollo(training_paths, test_paths, zoom_level=21):
         
     return training_imgs, test_imgs
 
+def dilated_fcn_resnet(img_size, path_to_weights):
+    """
+    Small helper function to grab the model used for batch_inference()
 
-def batch_inference(save_path, base_path = '/mnt/DATA/data/apollo_20190509/', num_imgs = 30000, batches = 600, zoom_level = 21, blank_threshold = 0.05, save = True, verbose = True):
+    Arguments:
+    img_size (tuple of integers): Size of the input to the model. Usually (896,896) or (1024,1024) when used by batch_inference()
+    path_to_weights (string): Exact path of the .h5 weights for the keras model
+
+    Returns:
+    tfk.Model with the weights in path_to_weights loaded in
+    """
+
+    res50 = apollo.make_dilated_fcn_resnet_16s((img_size[0], img_size[1], 3), 34)
+    res50.load_weights(path_to_weights)
+    return tfk.Model(res50.input, res50.output)
+
+def batch_inference(save_path, base_path = '/mnt/DATA/data/apollo_20190509/', path_to_weights = '/mnt/DATA/data_nagita/models/Q4_34class/model_13.h5', num_imgs = 30000, batches = 600, zoom_level = 21, blank_threshold = 0.05, save = True, verbose = True):
     
     """
     Run a set of Apollo images through a segmentation model, producing prediction rasters. Then, crop those prediction raster in to a given zoom level. The rasters are saved as a single group in save_path/all_zXX/ 
@@ -327,6 +342,7 @@ def batch_inference(save_path, base_path = '/mnt/DATA/data/apollo_20190509/', nu
     Arguments:
     save_path (string): Base path where the new prediction rasters should be saved. 
     base_path (string): Location of the Apollo images.
+    path_to_weights (string): Exact location of the Keras .h5 weights for the Apollo model
     num_imgs (int): Total number of images to load in. Note that as images are cropped for the required zoom level, more images will be produced. x49 for z22, x9 for z21, x1 for z20.
     batches (int): Split the process in to a number of batches to avoid GPU memory issues.
     zoom_level (int): Required zoom level, which the images are cropped to.
@@ -341,9 +357,9 @@ def batch_inference(save_path, base_path = '/mnt/DATA/data/apollo_20190509/', nu
     # The model which takes RGB images and produces prediction rasters - can be swapped out for other models which take the same image size.
     model = None
     if zoom_level == 19:
-        model = apollo.dilated_fcn_resnet_35((1024,1024))
+        model = dilated_fcn_resnet_35((1024,1024), path_to_weights)
     else:
-        model = apollo.dilated_fcn_resnet_35((896,896))
+        model = dilated_fcn_resnet_35((896,896), path_to_weights)
         
     batch_size = int(num_imgs/batches)
     training_num = 0
@@ -1279,7 +1295,7 @@ def create_index(encoding_path, save_path, categories, ef_construction = 50000, 
         encoded_pred = np.load(f)
         file_name = f.split('/')[-1][:-4] # Just the file name, not including .npy
         index = hnswlib.Index(space = index_space, dim = encoded_pred.shape[1])
-        index.init_index(max_elements = encoded_pred.shape[0], ef_construction = 50000, M = 100)
+        index.init_index(max_elements = encoded_pred.shape[0], ef_construction, M)
         index.add_items(encoded_pred, num_threads = 8)
 
         index.save_index(save_path + '/{}.idx'.format(file_name))
