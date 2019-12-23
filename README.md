@@ -2,7 +2,7 @@
 ## Made by Filip Drazovic
 
 ### Instructions
-1. Before starting the docker file, please clone spoor (https://github.com/nearmap/spoor.git) in to modules/
+1. Before starting the docker file, please clone spoor (https://github.com/nearmap/spoor.git) and apollo (https://github.com/nearmap/apollo.git) into modules/
 2. Run the docker image 
 ```
 docker pull nearmapltd/search:latest
