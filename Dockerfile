@@ -10,6 +10,8 @@ ARG ANACONDA_TOKEN
 
 COPY modules/spoor /spoor
 
+COPY modules/apollo /apollo
+
 RUN cd /spoor && \
 	python setup.py install && \
 	rm -rf /spoor
