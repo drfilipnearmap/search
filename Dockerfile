@@ -10,15 +10,9 @@ ARG ANACONDA_TOKEN
 
 COPY modules/spoor /spoor
 
-COPY modules/apollo /apollo
-
 RUN cd /spoor && \
 	python setup.py install && \
 	rm -rf /spoor
-
-RUN cd /apollo && \
-	python setup.py install && \
-	rm -rf /apollo
 
 RUN conda install --force-reinstall -y conda=4.7.12 && \
 	conda install -c conda-forge -c https://conda.anaconda.org/t/$ANACONDA_TOKEN/nearmap -y \
