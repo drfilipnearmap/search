@@ -1295,7 +1295,7 @@ def create_index(encoding_path, save_path, categories, ef_construction = 50000, 
         encoded_pred = np.load(f)
         file_name = f.split('/')[-1][:-4] # Just the file name, not including .npy
         index = hnswlib.Index(space = index_space, dim = encoded_pred.shape[1])
-        index.init_index(max_elements = encoded_pred.shape[0], ef_construction, M)
+        index.init_index(encoded_pred.shape[0], ef_construction, M)
         index.add_items(encoded_pred, num_threads = 8)
 
         index.save_index(save_path + '/{}.idx'.format(file_name))
