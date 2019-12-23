@@ -332,7 +332,7 @@ def dilated_fcn_resnet(img_size, path_to_weights):
 
     res50 = apollo.make_dilated_fcn_resnet_16s((img_size[0], img_size[1], 3), 34)
     res50.load_weights(path_to_weights)
-    return tfk.Model(res50.input, res50.output)
+    return tf.keras.Model(res50.input, res50.output)
 
 def batch_inference(save_path, base_path = '/mnt/DATA/data/apollo_20190509/', path_to_weights = '/mnt/DATA/data_nagita/models/Q4_34class/model_13.h5', num_imgs = 30000, batches = 600, zoom_level = 21, blank_threshold = 0.05, save = True, verbose = True):
     
