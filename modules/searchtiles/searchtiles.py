@@ -11,7 +11,7 @@ from pyimage_ops.pred_tiler.requester import PredictionRequester
 from skimage.draw import polygon
 from skimage.measure import find_contours, approximate_polygon
 from spoor.smoothing_utils import get_hough_transform_angle
-import apollo
+from training.dilated_resnet_fcn import make_dilated_fcn_resnet_16s
 
 
 def fetch_tiles(lat, lon, zoom_level, datestr, box_size, file_path, categories = [-1], verbose = False):
