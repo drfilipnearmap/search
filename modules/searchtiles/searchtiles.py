@@ -1440,7 +1440,7 @@ def search(preds_aligned, encoder, index_directory, coordinates_directory, datas
         
         # Perform a search for the current class
         for i in im_query_augmented:    
-            temp_ids, temp_distances = index.knn_query(i[class_index], k=num_nearest*10)
+            temp_ids, temp_distances = index.knn_query(i[class_index], k=(1000+num_nearest*10))
 
             # If we've already seen an index in a search result, only update it if the distance is now lower
             for ind, value in enumerate(temp_ids[0]):
@@ -1452,7 +1452,7 @@ def search(preds_aligned, encoder, index_directory, coordinates_directory, datas
         all_distances = list(query_dict.values())
         
         # Grab the nearest ids and distances for all jiggles of the current class
-        nearest_indexes = pd.Series(all_distances).nsmallest(rotations * num_nearest * 10).index.values.tolist()
+        nearest_indexes = pd.Series(all_distances).nsmallest(rotations * (1000+num_nearest*10)).index.values.tolist()
         current_nearest = {}
         for i in nearest_indexes:
             current_nearest[all_ids[i]] = all_distances[i]
@@ -1520,6 +1520,10 @@ def search(preds_aligned, encoder, index_directory, coordinates_directory, datas
                 plt.show()
             
             i += 1
+            
+            if i == len(nearest_ids):
+                break
+                
         j += 1
         
     return result_coordinates, result_images, result_ids
